@@ -26,6 +26,7 @@ use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\mcpe\protocol\types\DeviceOS;
 use pocketmine\network\mcpe\protocol\types\InputMode;
 use pocketmine\network\mcpe\protocol\types\login\ClientData;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\StandardEntityEventBroadcaster;
 use pocketmine\network\mcpe\StandardPacketBroadcaster;
 use pocketmine\player\Player;
@@ -138,7 +139,10 @@ final class Loader extends PluginBase implements Listener{
 		$server = $this->getServer();
 		$network = $server->getNetwork();
 		$type_converter = TypeConverter::getInstance();
-		$packet_broadcaster = new StandardPacketBroadcaster($this->getServer());
+		$packet_broadcaster = null;
+		foreach (ProtocolInfo::ACCEPTED_PROTOCOL as $protocol_id) {
+			$packet_broadcaster = new StandardPacketBroadcaster($this->getServer(), $protocol_id);
+		}
 		$entity_event_broadcaster = new StandardEntityEventBroadcaster($packet_broadcaster, $type_converter);
 
 		$internal_resolver = new PromiseResolver();
