@@ -13,6 +13,7 @@ use pocketmine\network\mcpe\NetworkSession;
 use pocketmine\network\mcpe\PacketBroadcaster;
 use pocketmine\network\mcpe\PacketSender;
 use pocketmine\network\mcpe\protocol\PacketPool;
+use pocketmine\network\mcpe\protocol\ProtocolInfo;
 use pocketmine\network\mcpe\protocol\serializer\PacketSerializer;
 use pocketmine\network\NetworkSessionManager;
 use pocketmine\player\Player;
@@ -96,7 +97,11 @@ class FakePlayerNetworkSession extends NetworkSession{
 		$rp = new ReflectionProperty(NetworkSession::class, 'packetPool');
 		$packetPool = $rp->getValue($this);
 		$packet = $packetPool->getPacket($buffer);
-		$packet->decode(PacketSerializer::decoder($buffer, 0));
+		$packet_serializer = null;
+		foreach(ProtocolInfo::ACCEPTED_PROTOCOL as $protocol_id) {
+			$packet_serializer = PacketSerializer::decoder($protocol_id, $buffer, 0);
+		}
+		$packet->decode($packet_serializer);
 		foreach($this->packet_listeners as $listener){
 			$listener->onPacketSend($packet, $this);
 		}
@@ -107,7 +112,6 @@ class FakePlayerNetworkSession extends NetworkSession{
 			$rp = new ReflectionProperty(NetworkSession::class, $name);
 			return $rp->getValue($this);
 		};
-
 		$info = $get_prop("info");
 		$authenticated = $get_prop("authenticated");
 		$cached_offline_player_data = $get_prop("cachedOfflinePlayerData");
