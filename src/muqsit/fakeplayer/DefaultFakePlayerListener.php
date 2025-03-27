@@ -37,7 +37,10 @@ final class DefaultFakePlayerListener implements FakePlayerListener{
 				$this->plugin->getScheduler()->scheduleDelayedTask(new ClosureTask(static function() use($session, $entity_runtime_id) : void{
 					if($session->isConnected()){
 						$packet = SetLocalPlayerAsInitializedPacket::create($entity_runtime_id);
-						$serializer = PacketSerializer::encoder();
+						$serializer = null;
+						foreach (ProtocolInfo::ACCEPTED_PROTOCOL as $protocol_id) {
+							$serializer = PacketSerializer::encoder($protocol_id);
+						}
 						$packet->encode($serializer);
 						$session->handleDataPacket($packet, $serializer->getBuffer());
 					}
@@ -72,7 +75,10 @@ final class DefaultFakePlayerListener implements FakePlayerListener{
 							0
 						);
 
-						$serializer = PacketSerializer::encoder();
+						$serializer = null;
+						foreach (ProtocolInfo::ACCEPTED_PROTOCOL as $protocol_id) {
+							$serializer = PacketSerializer::encoder($protocol_id);
+						}
 						$packet->encode($serializer);
 						$session->handleDataPacket($packet, $serializer->getBuffer());
 					}
